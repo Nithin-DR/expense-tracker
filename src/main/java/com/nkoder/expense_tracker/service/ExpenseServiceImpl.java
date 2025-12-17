@@ -42,6 +42,12 @@ public class ExpenseServiceImpl implements ExpenseService {
             return expenseRepo.save(existing);
         });
     }
+
+    @Override
+    public Optional<Expense> getExpenseById(Long id) {
+        return expenseRepo.findById(id);
+    }
+
     //Find by ID
     //If exists → update → save
     //If not → return 404
