@@ -23,6 +23,14 @@ public class ExpenseController {
         return expenseService.getAllExpenses();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Expense> getExpenseById(@PathVariable Long id) {
+        return expenseService.getExpenseById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+
     @PostMapping
     public Expense addExpense(@Valid @RequestBody Expense expense) {
         return expenseService.saveExpense(expense);
