@@ -26,3 +26,5 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 }
+
+//Validation annotations check fields → Spring throws exception → GlobalExceptionHandler formats the response
