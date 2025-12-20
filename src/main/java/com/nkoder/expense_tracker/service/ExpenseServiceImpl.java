@@ -18,8 +18,12 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     public Expense saveExpense(Expense expense) {
+        if (expense.getAmount() <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than zero");
+        }
         return expenseRepo.save(expense);
     }
+
 
     @Override
     public List<Expense> getAllExpenses() {
