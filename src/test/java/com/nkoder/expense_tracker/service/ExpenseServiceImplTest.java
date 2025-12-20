@@ -26,6 +26,18 @@ class ExpenseServiceImplTest {
 
     // ---------- saveExpense ----------
 
+
+    @Test void shouldSaveExpenseSuccessfully() {
+        Expense expense = new Expense();
+        expense.setTitle("Food");
+        expense.setAmount(250.0);
+        expense.setExpenseDate(LocalDate.now());
+        when(expenseRepo.save(expense)).thenReturn(expense);
+        Expense saved = expenseService.saveExpense(expense);
+        assertNotNull(saved);
+        assertEquals("Food", saved.getTitle());
+        verify(expenseRepo, times(1)).save(expense);
+    }
     @Test
     void shouldThrowExceptionWhenAmountIsNegative() {
         Expense expense = new Expense();
