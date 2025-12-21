@@ -32,8 +32,10 @@ class ExpenseServiceImplTest {
         expense.setTitle("Food");
         expense.setAmount(250.0);
         expense.setExpenseDate(LocalDate.now());
+
         when(expenseRepo.save(expense)).thenReturn(expense);
         Expense saved = expenseService.saveExpense(expense);
+
         assertNotNull(saved);
         assertEquals("Food", saved.getTitle());
         verify(expenseRepo, times(1)).save(expense);
