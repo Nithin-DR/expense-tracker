@@ -1,5 +1,6 @@
 package com.nkoder.expense_tracker.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -12,6 +13,7 @@ public class TestController {
     }
 
     @GetMapping("/user")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public String user() {
         return "User Page";
     }
