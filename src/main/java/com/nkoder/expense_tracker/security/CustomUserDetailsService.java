@@ -1,4 +1,4 @@
-package com.nkoder.expense_tracker.service;
+package com.nkoder.expense_tracker.security;
 
 import com.nkoder.expense_tracker.model.User;
 import com.nkoder.expense_tracker.repo.UserRepository;

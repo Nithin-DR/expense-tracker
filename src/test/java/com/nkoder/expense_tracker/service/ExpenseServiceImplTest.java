@@ -1,5 +1,7 @@
 package com.nkoder.expense_tracker.service;
 
+import com.nkoder.expense_tracker.dto.ExpenseRequestDTO;
+import com.nkoder.expense_tracker.dto.ExpenseResponseDTO;
 import com.nkoder.expense_tracker.model.Expense;
 import com.nkoder.expense_tracker.model.User;
 import com.nkoder.expense_tracker.repo.ExpenseRepo;
@@ -16,6 +18,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 class ExpenseServiceImplTest {
 
@@ -28,7 +31,7 @@ class ExpenseServiceImplTest {
     @InjectMocks
     private ExpenseServiceImpl expenseService;
 
-    private final String USERNAME = "nithin";
+    private static final String USERNAME = "nithin";
 
     // ---------- saveExpense ----------
 
@@ -39,43 +42,30 @@ class ExpenseServiceImplTest {
         user.setId(1L);
         user.setUsername(USERNAME);
 
-        Expense expense = new Expense();
-        expense.setTitle("Food");
-        expense.setAmount(250.0);
-        expense.setExpenseDate(LocalDate.now());
+        ExpenseRequestDTO request = new ExpenseRequestDTO();
+        request.setTitle("Food");
+        request.setAmount(250.0);
+        request.setExpenseDate(LocalDate.now());
 
         when(userRepository.findByUsername(USERNAME))
                 .thenReturn(Optional.of(user));
 
         when(expenseRepo.save(any(Expense.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> {
+                    Expense e = invocation.getArgument(0);
+                    e.setId(1L);
+                    return e;
+                });
 
-        Expense saved = expenseService.saveExpense(expense, USERNAME);
+        ExpenseResponseDTO response =
+                expenseService.saveExpense(request, USERNAME);
 
-        assertNotNull(saved);
-        assertEquals("Food", saved.getTitle());
-        assertEquals(user, saved.getUser());
+        assertNotNull(response);
+        assertEquals("Food", response.getTitle());
+        assertEquals(250.0, response.getAmount());
 
         verify(userRepository, times(1)).findByUsername(USERNAME);
-        verify(expenseRepo, times(1)).save(expense);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenAmountIsNegative() {
-
-        Expense expense = new Expense();
-        expense.setTitle("Food");
-        expense.setAmount(-250.0);
-
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> expenseService.saveExpense(expense, USERNAME)
-        );
-
-        assertEquals("Amount must be greater than zero", exception.getMessage());
-
-        verify(expenseRepo, never()).save(any());
-        verify(userRepository, never()).findByUsername(any());
+        verify(expenseRepo, times(1)).save(any(Expense.class));
     }
 
     // ---------- getExpensesForUser ----------
@@ -84,12 +74,14 @@ class ExpenseServiceImplTest {
     void shouldReturnExpensesForUser() {
 
         Expense e1 = new Expense();
+        e1.setId(1L);
         Expense e2 = new Expense();
+        e2.setId(2L);
 
         when(expenseRepo.findByUserUsername(USERNAME))
                 .thenReturn(List.of(e1, e2));
 
-        List<Expense> expenses =
+        List<ExpenseResponseDTO> expenses =
                 expenseService.getExpensesForUser(USERNAME);
 
         assertEquals(2, expenses.size());
@@ -104,15 +96,17 @@ class ExpenseServiceImplTest {
 
         Expense expense = new Expense();
         expense.setId(1L);
+        expense.setTitle("Food");
 
         when(expenseRepo.findByIdAndUserUsername(1L, USERNAME))
                 .thenReturn(Optional.of(expense));
 
-        Optional<Expense> result =
+        Optional<ExpenseResponseDTO> result =
                 expenseService.getExpenseById(1L, USERNAME);
 
         assertTrue(result.isPresent());
         assertEquals(1L, result.get().getId());
+        assertEquals("Food", result.get().getTitle());
     }
 
     @Test
@@ -121,7 +115,7 @@ class ExpenseServiceImplTest {
         when(expenseRepo.findByIdAndUserUsername(99L, USERNAME))
                 .thenReturn(Optional.empty());
 
-        Optional<Expense> result =
+        Optional<ExpenseResponseDTO> result =
                 expenseService.getExpenseById(99L, USERNAME);
 
         assertTrue(result.isEmpty());
@@ -137,10 +131,10 @@ class ExpenseServiceImplTest {
         existing.setTitle("Old");
         existing.setAmount(100.0);
 
-        Expense updated = new Expense();
-        updated.setTitle("New");
-        updated.setAmount(200.0);
-        updated.setExpenseDate(LocalDate.now());
+        ExpenseRequestDTO request = new ExpenseRequestDTO();
+        request.setTitle("New");
+        request.setAmount(200.0);
+        request.setExpenseDate(LocalDate.now());
 
         when(expenseRepo.findByIdAndUserUsername(1L, USERNAME))
                 .thenReturn(Optional.of(existing));
@@ -148,8 +142,8 @@ class ExpenseServiceImplTest {
         when(expenseRepo.save(existing))
                 .thenReturn(existing);
 
-        Optional<Expense> result =
-                expenseService.updateExpense(1L, updated, USERNAME);
+        Optional<ExpenseResponseDTO> result =
+                expenseService.updateExpense(1L, request, USERNAME);
 
         assertTrue(result.isPresent());
         assertEquals("New", result.get().getTitle());
@@ -161,13 +155,13 @@ class ExpenseServiceImplTest {
     @Test
     void shouldReturnEmptyWhenUpdatingNonExistingExpense() {
 
-        Expense updated = new Expense();
+        ExpenseRequestDTO request = new ExpenseRequestDTO();
 
         when(expenseRepo.findByIdAndUserUsername(99L, USERNAME))
                 .thenReturn(Optional.empty());
 
-        Optional<Expense> result =
-                expenseService.updateExpense(99L, updated, USERNAME);
+        Optional<ExpenseResponseDTO> result =
+                expenseService.updateExpense(99L, request, USERNAME);
 
         assertTrue(result.isEmpty());
         verify(expenseRepo, never()).save(any());
@@ -189,4 +183,3 @@ class ExpenseServiceImplTest {
         verify(expenseRepo, times(1)).delete(expense);
     }
 }
-

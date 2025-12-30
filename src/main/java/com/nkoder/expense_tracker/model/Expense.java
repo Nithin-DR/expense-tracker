@@ -10,24 +10,21 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-
 @Entity
 @Table(name = "expenses")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Expense {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Title can not be blank")
     private String title;
 
-    @Positive(message = "amount can not be negative")
     private double amount;
 
-    @NotNull(message = "Date is mandatory")
     private LocalDate expenseDate;
 
     @ManyToOne(fetch = FetchType.LAZY)

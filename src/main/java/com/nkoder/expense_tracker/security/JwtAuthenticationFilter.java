@@ -1,6 +1,5 @@
 package com.nkoder.expense_tracker.security;
 
-import com.nkoder.expense_tracker.service.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

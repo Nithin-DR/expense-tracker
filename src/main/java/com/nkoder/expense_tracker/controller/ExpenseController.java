@@ -1,5 +1,6 @@
 package com.nkoder.expense_tracker.controller;
 
+import com.nkoder.expense_tracker.dto.ExpenseRequestDTO;
 import com.nkoder.expense_tracker.dto.ExpenseResponseDTO;
 import com.nkoder.expense_tracker.model.Expense;
 import com.nkoder.expense_tracker.service.ExpenseService;
@@ -9,7 +10,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 @RestController
 @RequestMapping("/expenses")
 public class ExpenseController {
@@ -21,72 +21,55 @@ public class ExpenseController {
     }
 
     private String currentUsername() {
-        return SecurityContextHolder
-                .getContext()
+        return SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
     }
 
-    // 🔐 ADD EXPENSE
+    // CREATE
     @PostMapping
-    public ExpenseResponseDTO addExpense(@Valid @RequestBody Expense expense) {
+    public ResponseEntity<ExpenseResponseDTO> addExpense(
+            @Valid @RequestBody ExpenseRequestDTO request) {
 
-        Expense saved =
-                expenseService.saveExpense(expense, currentUsername());
-
-        return toDto(saved);
+        return ResponseEntity.ok(
+                expenseService.saveExpense(request, currentUsername())
+        );
     }
 
-    // 🔐 GET ALL USER EXPENSES
+    // GET ALL
     @GetMapping
     public List<ExpenseResponseDTO> getAllExpenses() {
-
-        return expenseService
-                .getExpensesForUser(currentUsername())
-                .stream()
-                .map(this::toDto)
-                .toList();
+        return expenseService.getExpensesForUser(currentUsername());
     }
 
-    // 🔐 GET BY ID
+    // GET BY ID
     @GetMapping("/{id}")
     public ResponseEntity<ExpenseResponseDTO> getExpenseById(@PathVariable Long id) {
 
-        return expenseService
-                .getExpenseById(id, currentUsername())
-                .map(e -> ResponseEntity.ok(toDto(e)))
+        return expenseService.getExpenseById(id, currentUsername())
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // 🔐 UPDATE
+    // UPDATE
     @PutMapping("/{id}")
     public ResponseEntity<ExpenseResponseDTO> updateExpense(
             @PathVariable Long id,
-            @Valid @RequestBody Expense expense) {
+            @Valid @RequestBody ExpenseRequestDTO request) {
 
-        return expenseService
-                .updateExpense(id, expense, currentUsername())
-                .map(e -> ResponseEntity.ok(toDto(e)))
+        return expenseService.updateExpense(id, request, currentUsername())
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // 🔐 DELETE
+    // DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteExpense(@PathVariable Long id) {
         expenseService.deleteExpense(id, currentUsername());
         return ResponseEntity.noContent().build();
     }
-
-    // 🔁 ENTITY → DTO
-    private ExpenseResponseDTO toDto(Expense e) {
-        return new ExpenseResponseDTO(
-                e.getId(),
-                e.getTitle(),
-                e.getAmount(),
-                e.getExpenseDate()
-        );
-    }
 }
+
 
 
     //ResponseEntity = data + status, along with data it will return that status of http
