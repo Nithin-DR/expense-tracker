@@ -1,9 +1,12 @@
 package com.nkoder.expense_tracker.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -24,6 +27,9 @@ public class User {
 
     private String role;
 
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<Expense> expenses;
     // getters & setters
 }
 

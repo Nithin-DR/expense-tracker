@@ -19,6 +19,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+
     public void register(String username, String password, String role) {
 
         User user = new User();

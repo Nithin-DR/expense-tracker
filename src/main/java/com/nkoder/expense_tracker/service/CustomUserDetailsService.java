@@ -8,8 +8,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
+//It retrieves user information from the database and adapts it into Spring Security’s UserDetails model for authentication.
 public class CustomUserDetailsService implements UserDetailsService {
-
+//UserDetailsService--To allow Spring Security to load user credentials and roles from a custom data source like a database
     private final UserRepository userRepository;
 
     public CustomUserDetailsService(UserRepository userRepository) {
@@ -25,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getUsername())
                 .password(user.getPassword()) // BCrypt hash from DB
-                .roles(user.getRole().replace("ROLE_", ""))
+                .roles(user.getRole())
                 .build();
     }
 }

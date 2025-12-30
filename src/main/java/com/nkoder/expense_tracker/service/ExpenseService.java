@@ -9,12 +9,14 @@ import java.util.Optional;
 
 public interface ExpenseService {
 
-    Expense saveExpense(Expense expense);
-    List<Expense> getAllExpenses();
-    void deleteExpense(Long  exId);
+    Expense saveExpense(Expense expense, String username);
 
-    Optional<Expense> updateExpense(Long id, Expense expense);
+    List<Expense> getExpensesForUser(String username);
 
-    Optional<Expense> getExpenseById(Long id);
+    Optional<Expense> getExpenseById(Long id, String username);
 
+    Optional<Expense> updateExpense(Long id, Expense expense, String username);
+
+    void deleteExpense(Long id, String username);
 }
+
