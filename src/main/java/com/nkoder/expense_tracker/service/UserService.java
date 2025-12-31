@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.nkoder.expense_tracker.model.AuthProvider;
+
 
 @Service
 public class UserService {
@@ -29,9 +31,18 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(password));
 
         user.setRole(role);
-
+        user.setProvider(AuthProvider.LOCAL);
         userRepository.save(user);
     }
+
+    public User registerOAuthUser(String email) {
+        User user = new User();
+        user.setUsername(email);
+        user.setProvider(AuthProvider.GOOGLE);
+        user.setRole("USER");
+        return userRepository.save(user);
+    }
+
 }
 
 

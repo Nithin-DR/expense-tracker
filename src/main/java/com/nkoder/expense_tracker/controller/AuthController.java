@@ -2,11 +2,17 @@ package com.nkoder.expense_tracker.controller;
 
 import com.nkoder.expense_tracker.dto.LoginRequest;
 import com.nkoder.expense_tracker.dto.LoginResponse;
+import com.nkoder.expense_tracker.dto.RegisterRequest;
 import com.nkoder.expense_tracker.security.JwtUtil;
 import com.nkoder.expense_tracker.service.UserService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -25,15 +31,23 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(@RequestParam String username,
-                           @RequestParam String password,
-                           @RequestParam String role) {
-        userService.register(username, password, role);
-        return "User registered successfully";
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+
+        userService.register(
+                request.getUsername(),
+                request.getPassword(),
+                request.getRole()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(Map.of("message", "User registered successfully"));
     }
 
+
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponse> login(
+            @Valid @RequestBody LoginRequest request) {
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -42,9 +56,12 @@ public class AuthController {
                 )
         );
 
-        String token = jwtUtil.generateToken(request.getUsername());
-        return new LoginResponse(token);
+        return ResponseEntity.ok(
+                new LoginResponse(jwtUtil.generateToken(request.getUsername()))
+        );
     }
+
+
 }
 
 
