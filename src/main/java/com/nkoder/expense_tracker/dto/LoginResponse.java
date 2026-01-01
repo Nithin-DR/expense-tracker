@@ -1,7 +1,11 @@
 package com.nkoder.expense_tracker.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
 public class LoginResponse {
+    private String message;
     private String token;
-    public LoginResponse(String token) { this.token = token; }
-    public String getToken() { return token; }
 }

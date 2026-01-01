@@ -1,5 +1,6 @@
 package com.nkoder.expense_tracker.service;
 
+import com.nkoder.expense_tracker.exception.DuplicateUserException;
 import com.nkoder.expense_tracker.model.User;
 import com.nkoder.expense_tracker.repo.UserRepository;
 import org.springframework.context.annotation.Bean;
@@ -24,16 +25,19 @@ public class UserService {
 
     public void register(String username, String password, String role) {
 
+        if (userRepository.findByUsername(username).isPresent()) {
+            throw new DuplicateUserException("Username already exists");
+        }
+
         User user = new User();
         user.setUsername(username);
-
-        // BCrypt hashing happens HERE
         user.setPassword(passwordEncoder.encode(password));
-
         user.setRole(role);
         user.setProvider(AuthProvider.LOCAL);
+
         userRepository.save(user);
     }
+
 
     public User registerOAuthUser(String email) {
         User user = new User();

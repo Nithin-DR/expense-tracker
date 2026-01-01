@@ -30,6 +30,7 @@ public class OAuth2SuccessHandler
             HttpServletRequest request,
             HttpServletResponse response,
             Authentication authentication) throws IOException {
+        System.out.println("OAUTH SUCCESS HANDLER HIT");
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
