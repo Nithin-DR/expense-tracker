@@ -39,6 +39,7 @@ public class ExpenseController {
     // GET ALL
     @GetMapping
     public List<ExpenseResponseDTO> getAllExpenses() {
+
         return expenseService.getExpensesForUser(currentUsername());
     }
 

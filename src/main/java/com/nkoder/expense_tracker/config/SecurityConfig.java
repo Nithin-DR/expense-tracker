@@ -2,6 +2,7 @@ package com.nkoder.expense_tracker.config;
 
 import com.nkoder.expense_tracker.security.JwtAuthenticationFilter;
 import com.nkoder.expense_tracker.security.OAuth2SuccessHandler;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -40,28 +41,43 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
+
+                // here JWT = STATELESS
                 .sessionManagement(session ->
-                                session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                        //session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
                 .authorizeHttpRequests(auth -> auth
+                        // theese are PUBLIC ENDPOINTS available to all
                         .requestMatchers(
                                 "/auth/register",
                                 "/auth/login",
                                 "/oauth2/**",
                                 "/login/oauth2/**"
                         ).permitAll()
-                        .anyRequest().authenticated()
+
+                        // API ENDPOINTS
+                        .requestMatchers("/**").authenticated()
+
+                        // EVERYTHING else blocked..,.
+                        .anyRequest().denyAll()
                 )
 
+                // Disable redirect for APIs
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"error\": \"Unauthorized\"}");
+                        })
+                )
 
-                // GOOGLE OAUTH
+                //  GOOGLE OAUTH (Browser only)
                 .oauth2Login(oauth ->
                         oauth.successHandler(oAuth2SuccessHandler)
                 )
 
-                // JWT FOR API REQUESTS
+                //  JWT FILTER
                 .addFilterBefore(jwtFilter,
                         UsernamePasswordAuthenticationFilter.class);
 
@@ -69,8 +85,10 @@ public class SecurityConfig {
     }
 
 
+
     @Bean
     public PasswordEncoder passwordEncoder() {
+
         return new BCryptPasswordEncoder(10);
     }
 

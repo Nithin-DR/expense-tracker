@@ -22,5 +22,11 @@ public class TestController {
     public String admin() {
         return "Admin Page";
     }
+
+    @GetMapping("/thread")
+    public String threadInfo() {
+        return "Thread name: " + Thread.currentThread().getName();
+    }
 }
+
 
